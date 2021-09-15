@@ -215,7 +215,7 @@ type MakeBucketOutput struct {
 	RequestId string
 }
 
-/// Implementations of all the functions here are expected to be
+// StorageBackend Implementations of all the functions here are expected to be
 /// concurrency-safe, except for
 ///
 /// Init() is called exactly once before any other functions are

@@ -101,6 +101,11 @@ func NewApp() (app *cli.App) {
 			// File system
 			/////////////////////////
 
+			cli.StringFlag{
+				Name:"metadata-cache-url",
+				Usage: "Url of file metadata cache",
+			},
+
 			cli.StringSliceFlag{
 				Name:  "o",
 				Usage: "Additional system-specific mount options. Be careful!",
@@ -347,6 +352,9 @@ func PopulateFlags(c *cli.Context) (ret *FlagStorage) {
 		DebugFuse:  c.Bool("debug_fuse"),
 		DebugS3:    c.Bool("debug_s3"),
 		Foreground: c.Bool("f"),
+
+		// Metadata Cache options
+		MetadataCacheFile: c.String("metadata-cache-url"),
 	}
 
 	// S3

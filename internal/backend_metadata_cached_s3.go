@@ -34,34 +34,33 @@ func NewMetadataCachedS3(bucket, path string, flags *common.FlagStorage, config 
 		return nil, err
 	}
 
-	parsedUrl, err := url.Parse(flags.MetadataCacheFile)
+	parsedURL, err := url.Parse(flags.MetadataCacheFile)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse cache file url")
 	}
 
 	cache := &gproto.NodeMetadata{}
-	if parsedUrl.Scheme == "s3" {
+	if parsedURL.Scheme == "s3" {
 		// Read the cache from s3 cache path
 		output, err := s3Backend.S3.GetObject(&s3.GetObjectInput{
-			Bucket: aws.String(parsedUrl.Host),
-			Key:    aws.String(parsedUrl.Path),
+			Bucket: aws.String(parsedURL.Host),
+			Key:    aws.String(parsedURL.Path),
 		})
 		if err != nil {
 			return nil, errors.Wrap(err, "read metadata s3 file")
 		}
 
-		body := make([]byte, *output.ContentLength)
-		_, err = output.Body.Read(body)
+		s3objectBytes, err := ioutil.ReadAll(output.Body)
 		if err != nil {
 			return nil, errors.Wrap(err, "read metadata body")
 		}
 
-		if err := proto.Unmarshal(body, cache); err != nil {
+		if err := proto.Unmarshal(s3objectBytes, cache); err != nil {
 			return nil, errors.Wrap(err, "unmarshal metadata proto")
 		}
 	} else {
-		if parsedUrl.Scheme != "" {
-			return nil, fmt.Errorf("unsupported metadata url scheme: %s", parsedUrl.Scheme)
+		if parsedURL.Scheme != "" {
+			return nil, fmt.Errorf("unsupported metadata url scheme: %s", parsedURL.Scheme)
 		}
 
 		body, err := ioutil.ReadFile(flags.MetadataCacheFile)
